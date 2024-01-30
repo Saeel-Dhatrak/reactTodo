@@ -1053,4 +1053,83 @@
 - 
 
 ## Section 11 Started here
-## Lecture
+## Lecture 218/11:01 - Getting Started with React Todo Management App
+- Todo Management App - What will we learn?
+- Routing
+- Forms
+- Validation
+- REST API calls
+- Authentication
+
+## Lecture 219/11:02 - Getting Started with Login Component - Todo React App
+
+- Starting with TodoApp
+    - 1: LoginComponent
+        - Make LoginComponent Controlled
+            - Link form fields with state
+        - Implement Hard-Coded Authentication
+        - Implement Conditional Rendering
+    - 2: WelcomeComponent
+        - Implement Routing
+- Create a new folder in `component` folder named `todo` ad inside this folder create a new component name `TodoApp.jsx`
+- ```js
+    // TodoApp.jsx
+    export default function TodoApp(){
+        return(
+            <div className="TodoApp">
+                Todo Management Application
+            </div>
+        )
+    }
+  ```
+- Now we need to make use of this TodoApp in our App.js and we no longer need that Counter app so the App.js gets updated as shown below
+- ```js
+    // App.js
+    import './App.css';
+    import TodoApp from './components/todo/TodoApp';
+    function App() {
+        return (
+            <div className="App">
+            <TodoApp />
+            </div>
+        );
+    }
+    export default App;
+  ```
+- Now we will start with LoginComponent and we will begin writing this component in the TodoApp.js component itself
+- ```js
+    // TodoApp.js
+    export default function TodoApp(){
+        return(
+            <div className="TodoApp">
+                Todo Management Application
+                <LoginComponent/>
+                {/* <WelcomeComponent /> */}
+            </div>
+        )
+    }
+
+    function LoginComponent(){
+        return(
+            <div className="Login">
+                <div className="LoginForm">
+                    <div>
+                        <label>User Name</label>
+                        <input type="text" name="username"></input>
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" name="password"></input>
+                    </div>
+                    <div>
+                        <button type="button" name="login">login</button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+  ```
+  
+## Lecture 219/11:02 -Improving Login Component Further - Todo React App
+
+- 
