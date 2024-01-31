@@ -1132,4 +1132,127 @@
   
 ## Lecture 219/11:02 -Improving Login Component Further - Todo React App
 
-- 
+- Lets write a file TodoApp.css in the same todo folder and import it in the TodoApp.jsx. Also have a `value` element in the input of username as shown below.
+- ```js
+    // TodoApp.css
+    label, input, button{
+        margin: 10px;
+        padding: 5px;
+    }
+    // TodoApp.jsx
+    import './TodoApp.css'
+    <div> // LoginComponent
+        <label>User Name</label>
+        <input type="text" name="username" value="in28minutes"></input>
+    </div>
+  ```
+- Here we have `value="in28minutes"` and when we try to change the value in the input box we will get warning stating- A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component
+- In react there is a concept called controlled component, whenever we are playing with form elements in react there are two diffrent things that coe into picture. 1) react state - we can hold the value of the form variable in the react state 2) value in the form element itself
+- When we try to inspesct the input tag we can there is dom element which holding the value of it and whenever we change the value the specific dom element is automatically updated
+- whenever we are using form elements with react we need to ensure the react state and dom value should be syncronozed. When we set that up for a specific component then that component would be called a controlled component
+- We need to make LoginComponent a controled component and for that lets startwith adding some state using the useState for holding username
+- ```js
+    const [username, setUsername] = useState('in28minutes')
+
+    <div>
+        <label>User Name</label>
+        <input type="text" name="username" value={username}></input>
+    </div>
+  ```
+- So we are tagging up the form element with the state. But now also this will be readonly because we will get warning as - You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`
+- So we need to provide a onChange  method and in which we will log the event that is happening in the input field.
+- ```js
+    function handleUsernameChange(event){
+        console.log(event.target.value);
+        setUsername(event.target.value)
+    }
+    <div>
+        <label>User Name</label>
+        <input type="text" name="username" value={username} onChange={handleUsernameChange}></input>
+    </div>
+  ```
+- So whatever we are going to write after the `username` in the input box it will get appended in the box. And same can be done for password i.e useState for password and other functions. SO our TodoApp.jsx is
+- ```js
+    // TodoApp.jsx
+    import './TodoApp.css'
+    import { useState } from 'react'
+
+    export default function TodoApp(){
+        return(
+            <div className="TodoApp">
+                Todo Management Application
+                <LoginComponent/>
+                {/* <WelcomeComponent /> */}
+            </div>
+        )
+    }
+
+    function LoginComponent(){
+        const [username, setUsername] = useState('in28minutes')
+        const [password, setPassword] = useState('')
+        function handleUsernameChange(event){
+            setUsername(event.target.value)
+        }
+        function handlePasswordChange(event){
+            setPassword(event.target.value);
+        }
+        return(
+            <div className="Login">
+                <div className="LoginForm">
+                    <div>
+                        <label>User Name</label>
+                        <input type="text" name="username" value={username} onChange={handleUsernameChange}></input>
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" name="password" value={password} onChange={handlePasswordChange}></input>
+                    </div>
+                    <div>
+                        <button type="button" name="login">login</button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+  ```
+
+- ## Lecture 221/11:04 - Adding HardCoded Authentication - TodoReact App
+
+- For now lets add in hard coded authentication and later we will make use pf speing secirity
+- ```js
+    // TodoApp.jsx
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    function handleSubmit(){
+        if(username==='in28minutes' && password==='dummy'){
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else{
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+
+    function SuccessMessageComponent(){
+        if(showSuccessMessage){
+            return <div className="successMessage" >Authenticated Successfully</div> 
+        }
+        return null
+    }
+    function ErrorMessageComponent(){
+        if(showErrorMessage){
+            return <div className="errorMessage">Authentication Failed. Please check your credentials.</div> 
+        }
+        return null
+    }
+    return(
+        <div className="Login">
+            <SuccessMessageComponent />
+            <ErrorMessageComponent />
+            <div className="LoginForm">
+                // rest code remains same
+            </div>
+        </div>
+    )
+  ```
+- So here we are doing conditional rendering of the components based on their state values i.e they will only appear here if the value becomes true.
