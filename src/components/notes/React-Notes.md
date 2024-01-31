@@ -1589,3 +1589,26 @@
 - ## Lecture 229/11:12 - Adding Bootstrap to React Front End Application
 
 - ![BeforeBootstrap](BeforeBootstrap.PNG)
+- Now to make it more attractive in looking we ineed to install bootstrap using command `npm install bootstrap` and it will getadded to package.json. Now we want the bootstrap to available to us through out the application therefore we need to add it to the index.js as a relative path.
+- ```js
+    // index.js
+    import 'bootstrap/dist/css/bootstrap.min.css';
+  ```
+- We will start styling the ListTodosComponent using bootstrap.
+- ```js
+    return(
+        <div className="container"> // best bootstrap class
+            <h1>Things You Want to Do!</h1>
+            <div>
+                <table className="table"> // this provides the structure of a table
+                    // rest remains same
+                </table>
+            </div>
+        </div>
+    )
+  ```
+
+- ## Lecture 231/11:13 - Using bootstrap to style todo react front end application
+
+- Lets strat with footer
+- 
