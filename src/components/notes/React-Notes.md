@@ -1216,7 +1216,7 @@
     }
   ```
 
-- ## Lecture 221/11:04 - Adding HardCoded Authentication - TodoReact App
+## Lecture 221/11:04 - Adding HardCoded Authentication - TodoReact App
 
 - For now lets add in hard coded authentication and later we will make use pf speing secirity
 - ```js
@@ -1257,7 +1257,7 @@
   ```
 - So here we are doing conditional rendering of the components based on their state values i.e they will only appear here if the value becomes true.
 
-- ## Lecture 222/11:05 - Conditionally displaying messages in Login Component - Todo React App
+## Lecture 222/11:05 - Conditionally displaying messages in Login Component - Todo React App
 
 - The above was a complex approach we can have a easy approach as well. So we cam wrote the logic in the return statement of the Login component itself.
 - Example to understand
@@ -1586,7 +1586,7 @@
     }
   ```
 
-- ## Lecture 229/11:12 - Adding Bootstrap to React Front End Application
+## Lecture 229/11:12 - Adding Bootstrap to React Front End Application
 
 - ![BeforeBootstrap](BeforeBootstrap.PNG)
 - Now to make it more attractive in looking we ineed to install bootstrap using command `npm install bootstrap` and it will getadded to package.json. Now we want the bootstrap to available to us through out the application therefore we need to add it to the index.js as a relative path.
@@ -1608,7 +1608,7 @@
     )
   ```
 
-- ## Lecture 231/11:13 - Using bootstrap to style todo react front end application
+## Lecture 231/11:13 - Using bootstrap to style todo react front end application
 
 - Lets start with footer and in it we will make w=use of the htmk tag called footer as shown below.
 - ```js
@@ -1757,7 +1757,7 @@
     }
   ```
 
-- ## Lecture 233/11:15 - Sharing react state with multiple components with auth context
+## Lecture 233/11:15 - Sharing react state with multiple components with auth context
 
 - We want to move all the logic related to the authentication present in the Login Component to a new its own component named `AuthContext.js` in a new `security` folder. In this js file we want to
 - ```js
@@ -1843,7 +1843,7 @@
   ```
 - So we can see 0 in the logs. So the state that we have in the AuthContext are now able to share across diffrent components
 
-- ## Lecture 244/11:16 - Updating react state and verifting updates through auth context
+## Lecture 244/11:16 - Updating react state and verifting updates through auth context
 
 - We want to update the state of the number in auth context every few seconds. So after every 10 seconds we will increment the value of number and initially we will kwwp the value to 10 as shown below.
 - ```js
@@ -1880,3 +1880,217 @@
     }
   ```
 - So now everything works same.
+
+## Lecture 235/11:17 - Setting isAuthenticated into React State - Auth Context
+
+- We want to enable and disable the menu based on user has logged in or not. To do that when the user logs in we need to put a flag in AuthContext indicating that the user is logged in and this flag will decide which menu itemsto be showed. Let's have a variable `isAuthenticated` using the useState in the AuthContext
+- ```js
+    // AuthContext.js
+    import { createContext, useContext, useState } from "react";
+
+    export const AuthContext = createContext()
+    export const useAuth = () => useContext(AuthContext)
+    export default function AuthProvider({children}){
+        const [number, setNumber] = useState(10)
+        const [isAuthenticated, setAuthenticated] = useState(false) // this will act as flag
+        setInterval(() => setNumber(number+1), 10000)
+        return(
+            <AuthContext.Provider value={{number, isAuthenticated, setAuthenticated}}> // passing here so that it is available to all the other components
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- So in LoginComponent we want to set the `isAuthenticated` to true with the help of `useAuth` same as we did in the HeaderComponent.
+- ```js
+    // LoginComponent
+    const authContext = useAuth()
+    function handleSubmit(){
+        if(username==='in28minutes' && password==='dummy'){
+            authContext.setAuthenticated(true)
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+            
+        }else{
+            authContext.setAuthenticated(false)
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+  ```
+- Now based on the state of the `isAuthenticated` we need to show the items in the HeaderComponent.
+- ```js
+    // HeaderComponent.js
+    import { Link } from "react-router-dom"
+    import { useAuth } from "./security/AuthContext"
+    export default function HeaderComponent(){
+
+        const authContext = useAuth()
+        const isAuthenticated = authContext.isAuthenticated
+        function logout(){
+            authContext.setAuthenticated(false)
+        }
+        return(
+            <header className="border-bottom border-light border-5 mb-5 p-2">
+                <div className="container">
+                    <div className="row">
+                        <nav className="navbar navbar-expand-lg">
+                            <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                            <div className="collapse navbar-collapse">
+                                <ul className="navbar-nav">
+                                    <li className="nav-item fs-5">
+                                        {isAuthenticated && <Link className="nav-link" to="/welcome/in28minutes">Home</Link>}  
+                                    </li>
+                                    <li className="nav-item fs-5">
+                                        {isAuthenticated && <Link className="nav-link" to="/todos">Todos</Link>}
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul className="navbar-nav">
+                                <li className="nav-item fs-5">
+                                    {!isAuthenticated && <Link className="nav-link" to="/login">Login</Link>}
+                                </li>
+                                <li className="nav-item fs-5">
+                                    {isAuthenticated && <Link className="nav-link" to="/logout" onClick={logout}>Logout</Link>}
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+        )
+    }
+  ```
+- So here we have added the jsx syntax using the `isAuthenticated` value to show or not to show the items. Also added a logout function to change the value of `isAuthenticated` to false.
+- Still the issue here is upon typing the url directly we are able to re-direct to the particular url even without loggin in so we need to protect our routes.
+
+## Lecture 236/11:18 - Protecting Secure React Routes using Authenticated Route -1
+
+- Right now we are calling `setAuthenticated` in multiple components like Login and Header components and also the Authentication logic present in Login component we will take the logic to the AuthContext. Start with creating login function in AuthContext
+- ```js
+    // AuthContext.js
+    import { createContext, useContext, useState } from "react";
+
+    export const AuthContext = createContext()
+    export const useAuth = () => useContext(AuthContext)
+
+    export default function AuthProvider({children}){
+        const [isAuthenticated, setAuthenticated] = useState(false)
+        function login(username, password){
+            if(username==='username' && password==='dummy'){
+                setAuthenticated(true)
+                return true
+            }else{
+                setAuthenticated(false)
+                return false
+            }
+        }
+        function logout(){
+            setAuthenticated(false)
+        }
+        return(
+            <AuthContext.Provider value={{isAuthenticated, login, logout}}> // adding login method so that other components can access it and removed the setAuthenticated from the object so it remains here only
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- Now lets remove the un-necesaary code from the LoginComponent and use the AuthContext login function in the handSubmit method as shown below.
+- ```js
+    // LoginComponent.jsx
+    import { useState } from 'react'
+    import {useNavigate} from 'react-router-dom'
+    import { useAuth } from './security/AuthContext'
+
+    export default function LoginComponent(){
+        const [username, setUsername] = useState('in28minutes')
+        const [password, setPassword] = useState('')
+        const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+        const [showErrorMessage, setShowErrorMessage] = useState(false)
+        const navigate = useNavigate()
+        const authContext = useAuth()
+
+        function handleSubmit(){
+            if(authContext.login(username, password)){
+                navigate(`/welcome/${username}`)
+                
+            }else{
+                setShowErrorMessage(true)
+            }
+        }
+
+        return(
+            <div className="Login">
+                <h1>Time to Login!</h1>
+                {showErrorMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div> }
+                <div className="LoginForm">
+                    <div>
+                        <label>User Name</label>
+                        <input type="text" name="username" value={username} onChange={handleUsernameChange}></input>
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" name="password" value={password} onChange={handlePasswordChange}></input>
+                    </div>
+                    <div>
+                        <button type="button" name="login" onClick={handleSubmit}>login</button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+  ```
+- We have removed the showSuccessMessage logic because there is not point to keep it here because we are going to move from Login Page to welcime page.
+- So the function `logout` in the HeaderComponent logic can also be moved to AuthContext and in the HeaderComponent we need to just make use of authContext
+- ```js
+    // HeaderComponent.jsx
+    function logout(){
+        authContext.logout()
+    }
+  ```
+
+## Lecture 237/11:19 - Protecting Secure React Routes using Authenticated Route - 2
+
+- We want to allow users to todos route only when the user is logged in, because currently upon entering the url manually will be redirected to the page irrespective of logged in or not. So we need to create Authenticated Route which will check if your are logged in and only if you are logged in you eill be taken to that specific route. So in TodoApp.jsx we will create a function `AuthenticatedRoute`.
+- So the components welcome, todos and logout should only be shown when the user is authenticated so these 3 components should come under the `AuthenticatedRoute`
+- ```js
+    // TodoApp.jsx
+    export default function TodoApp(){
+        function AuthenticatedRoute({children}){
+            const authContext = useAuth()
+            if(authContext.isAuthenticated)
+                return children
+            return <Navigate to="/" /> // imported from react-router-dom
+        }
+        return(
+            <div className="TodoApp">  
+                <AuthProvider>         
+                    <BrowserRouter>
+                    <HeaderComponent />
+                        <Routes>
+                            <Route path='/' element={<LoginComponent />} />   
+                            <Route path='/login' element={<LoginComponent />} />
+                            <Route path='/welcome/:username' element={
+                                <AuthenticatedRoute>
+                                    <WelcomeComponent />
+                                </AuthenticatedRoute>
+                            } />
+                            <Route path='/todos' element={
+                                <AuthenticatedRoute>
+                                    <ListTodosComponent />
+                                </AuthenticatedRoute>
+                            } />
+                            <Route path='/logout' element={
+                                <AuthenticatedRoute>
+                                    <LogoutComponent />
+                                </AuthenticatedRoute>
+                            } />
+                            <Route path='*' element={<ErrorComponent/>} />
+                        </Routes>
+                    </BrowserRouter>
+                </AuthProvider>       
+            </div>
+        )
+    }
+  ```
