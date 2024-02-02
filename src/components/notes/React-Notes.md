@@ -1610,5 +1610,273 @@
 
 - ## Lecture 231/11:13 - Using bootstrap to style todo react front end application
 
-- Lets strat with footer
-- 
+- Lets start with footer and in it we will make w=use of the htmk tag called footer as shown below.
+- ```js
+    function FooterComponent(){
+        return(
+            <footer className="footer">
+                <div className="container">
+                    Your Footer 
+                </div>
+            </footer>
+        )
+    }
+    // TodoApp.css
+    footer{
+        bottom: 0;
+        position: absolute;
+        width: 90%;
+        height: 40px;
+    }
+  ```
+- Moving on to the header component and in it we will make w=use of the htmk tag called footer as shown below.
+- ```js
+    function HeaderComponent(){
+        return(
+            <header className="header">
+                <div className="container">
+                    <ul className="navbar-nav">
+                        <li className="nav-item"><a className="nav-link" href="https://www.google.com">in28minutes</a></li>
+                        <li className="nav-item"><Link className="nav-link" to="/welcome/in28minutes">in28minutes</Link></li>
+                    </ul>
+                </div>
+            </header>
+        )
+    }
+  ```
+- Upon using the `Link` we will get error - useHref() may beused only in the context of a Router component. We are including HeaderComponent in the TodoApp.jsx directly and it is not part of the router. Currently our router looks like
+- ```js
+    <HeaderComponent />
+        <BrowserRouter>
+            <Routes>
+                <Route path='/' element={<LoginComponent />} />   
+                <Route path='/login' element={<LoginComponent />} />
+                <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                <Route path='/todos' element={<ListTodosComponent />} />
+                <Route path='/logout' element={<LogoutComponent />} />
+                <Route path='*' element={<ErrorComponent/>} />
+            </Routes>
+        </BrowserRouter>
+        <FooterComponent />
+  ```
+- So we cannot make the use of Link if you are not the part of router. So we need to include in the router as done below.
+- ```js
+    <BrowserRouter>
+    <HeaderComponent />
+        <Routes>
+            <Route path='/' element={<LoginComponent />} />   
+            <Route path='/login' element={<LoginComponent />} />
+            <Route path='/welcome/:username' element={<WelcomeComponent />} />
+            <Route path='/todos' element={<ListTodosComponent />} />
+            <Route path='/logout' element={<LogoutComponent />} />
+            <Route path='*' element={<ErrorComponent/>} />
+        </Routes>
+    <FooterComponent />
+    </BrowserRouter>
+  ```
+- And now we won't get that error. And add few more links.
+- ```js
+    function HeaderComponent(){
+        return(
+            <header className="header">
+                <div className="container">
+                    <ul className="navbar-nav">
+                        <li className="nav-item"><a className="nav-link" href="https://www.in28minutes.com">in28minutes</a></li>
+                        <li className="nav-item"><Link className="nav-link" to="/welcome/Saeel">Home</Link></li>
+                        <li className="nav-item"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        <li className="nav-item"><Link className="nav-link" to="/logout">Logout</Link></li>
+                        <li className="nav-item"><Link className="nav-link" to="/login">Login</Link></li>
+                    </ul>
+                </div>
+            </header>
+        )
+    }
+  ```
+- Right now our header links are coming one below another. We want the `in28minutes` as the brand of website, Home & Todos on the left side and the remainings login & logout on the right corner
+- ![AddedHeaderLink](AddedHeaderLink.PNG)
+- ```js
+    function HeaderComponent(){
+        return(
+            <header className="border-bottom border-light border-5 mb-5 p-2">
+                <div className="container">
+                    <div className="row">
+                        <nav className="navbar navbar-expand-lg">
+                            <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                            <div className="collapse navbar-collapse">
+                                <ul className="navbar-nav">
+                                    <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                                    <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                                </ul>
+                            </div>
+                            <ul className="navbar-nav">
+                                <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                                <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+        )
+    }
+  ```
+- Above we have used the class `navbar-nav` because of which our links are coming side by side, used the class `nav-link` which makes our link not look like link still upon hovering over it our cursor changes to pointer.
+- The class `collapse navbar-collapse` if we remove it then all the menus will come beside each other, removing `navbar-brand ms-2 fs-2 fw-bold text-black` will make our brand name normal
+- `border-bottom border-light border-5 mb-5 p-2` makes our header margin padding and border etc
+- ![AddedClassesToHeader](AddedClassesToHeader.PNG)
+- Right now we are able to go on any page withour even logging in and ,any more flaws.
+
+## Lecture 232/11:14 - Refactoring React Components to Individual Javascript Modules
+
+- Right now we have all the components in one that is in the TodoApp.jsx. We need to separate them into their own modules. Starting with Footer componnent, actually we are not going to use the footer component in future. Rest all will have their respective jsx files as shown below our TodoApp.jsx now gets more clean.
+- ```js
+    import './TodoApp.css'
+    import {BrowserRouter, Routes, Route} from 'react-router-dom'
+    import LogoutComponent from './LogoutComponent'
+    import HeaderComponent from './HeaderComponent'
+    import ListTodosComponent from './ListTodosComponent'
+    import ErrorComponent from './ErrorComponent'
+    import WelcomeComponent from './WelcomeComponent'
+    import LoginComponent from './LoginComponent'
+
+    export default function TodoApp(){
+        return(
+            <div className="TodoApp">           
+                <BrowserRouter>
+                <HeaderComponent />
+                    <Routes>
+                        <Route path='/' element={<LoginComponent />} />   
+                        <Route path='/login' element={<LoginComponent />} />
+                        <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                        <Route path='/todos' element={<ListTodosComponent />} />
+                        <Route path='/logout' element={<LogoutComponent />} />
+                        <Route path='*' element={<ErrorComponent/>} />
+                    </Routes>
+                </BrowserRouter>       
+            </div>
+        )
+    }
+  ```
+
+- ## Lecture 233/11:15 - Sharing react state with multiple components with auth context
+
+- We want to move all the logic related to the authentication present in the Login Component to a new its own component named `AuthContext.js` in a new `security` folder. In this js file we want to
+- ```js
+    // AuthContext.js
+    // 1. Create a Context
+
+    // 2. Put some state in the context
+
+    // 3. Share the created context with other components
+  ```
+- To create a context we need to make use of a react hook `createContext` and this would return authentication context back. `const AuthContext = createContext()`. Now we have created a context to share with other componentsn. we want to put some values in the context and share it with other components and to enable us to do that create a functional components name `AuthProvider` and this is the one which would provide the context to other components.
+- ```js
+    // AuthContext.js
+        const AuthContext = createContext() // 1. Create a Context
+    // 2. Put some state in the context
+    // 3. Share the created context with other components
+    export default function AuthProvider({children}){
+        return(<></>)
+    }
+  ```
+- Once the AuthProvider is ready we will be using AuthProvider as a parent. We want to provide the context which is in AuthProvider to each element present in the BrowserRouter of the TodoApp.jsx. So we would need to wrap the BrowserRouter with AuthProvider. So it will wrap around all the children, so all the children under the Authprovider will be assigned `function AuthProvider({children})` children variable here.
+- ```js
+    // TodoApp.jsx
+    export default function TodoApp(){
+        return(
+           <div className="TodoApp">  
+            <AuthProvider>         
+                <BrowserRouter>
+                <HeaderComponent />
+                    <Routes>
+                        <Route path='/' element={<LoginComponent />} />   
+                        <Route path='/login' element={<LoginComponent />} />
+                        <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                        <Route path='/todos' element={<ListTodosComponent />} />
+                        <Route path='/logout' element={<LogoutComponent />} />
+                        <Route path='*' element={<ErrorComponent/>} />
+                    </Routes>
+                </BrowserRouter>
+            </AuthProvider>       
+        </div>
+        )
+    }
+  ```
+- And we want to provide the context to the children of the AuthProvider
+- ```js
+    // AuthContext.js
+    import { createContext } from "react";
+    const AuthContext = createContext()
+    export default function AuthProvider({children}){
+        return(
+            <AuthContext.Provider>
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- Now we need to put some value in the state so that we can provide tjem to the children of the provider
+- ```js
+    export default function AuthProvider({children}){
+    const [number, setNumber] = useState(0)
+        return(
+            <AuthContext.Provider value={{number}}>
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- So we have a number and we have used it as a value to our AuthProvider in the double cul=rly braces and we would want to use this number now in other component and to do this we need to provode access to the AuthContext. So we would need to export Auth Context. `export const AuthContext = createContext()`. And we need to import it in the component where we want to use it. here imoorting in the HedaerComponebt `import { AuthContext } from "./security/AuthContext"`.
+- To make use of the AuthContext in the HeaderComponent we need to make use of a react hook `useContext`
+- ```js
+    // HeaderComponent.jsx
+    import { Link } from "react-router-dom"
+    import { AuthContext } from "./security/AuthContext"
+    import { useContext } from "react"
+
+    export default function HeaderComponent(){
+        const authContext = useContext(AuthContext) // hook
+        console.log(authContext.number); //number becoz we have given name to variable in AuthProvider as number
+        return(
+            // Rest html Code reamins same
+        )
+    }
+  ```
+- So we can see 0 in the logs. So the state that we have in the AuthContext are now able to share across diffrent components
+
+- ## Lecture 244/11:16 - Updating react state and verifting updates through auth context
+
+- We want to update the state of the number in auth context every few seconds. So after every 10 seconds we will increment the value of number and initially we will kwwp the value to 10 as shown below.
+- ```js
+    
+    export default function AuthProvider({children}){
+
+        const [number, setNumber] = useState(10)
+
+        setInterval(() => setNumber(number+1), 10000)
+        return(
+            <AuthContext.Provider value={{number}}>
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- Right now we are using useContext and a reference to AuthContext in HeaderComponent. Typically when we have common context we will be using it across the application and we would want to make it relly easyto ue it and therefore we will create a hook for it
+- ```js
+    // AuthContext.js
+    export const useAuth = () => useContext(AuthContext)
+  ```
+- So if any other component wants to make use of the authentication context they can make use of the `useAuth` hook. So in our header component
+- ```js
+    // HeaderComponent.jsx
+    import { Link } from "react-router-dom"
+    import { useAuth } from "./security/AuthContext"
+    export default function HeaderComponent(){
+        //const authContext = useContext(AuthContext)
+        const authContext = useAuth()
+        console.log(authContext.number);
+        return(
+            // Rest code Same
+        )
+    }
+  ```
+- So now everything works same.
