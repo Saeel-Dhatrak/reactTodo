@@ -1071,7 +1071,7 @@
         - Implement Conditional Rendering
     - 2: WelcomeComponent
         - Implement Routing
-- Create a new folder in `component` folder named `todo` ad inside this folder create a new component name `TodoApp.jsx`
+- Create a new folder in `component` folder named `todo` and inside this folder create a new component `TodoApp.jsx`
 - ```js
     // TodoApp.jsx
     export default function TodoApp(){
@@ -1146,11 +1146,11 @@
         <input type="text" name="username" value="in28minutes"></input>
     </div>
   ```
-- Here we have `value="in28minutes"` and when we try to change the value in the input box we will get warning stating- A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component
-- In react there is a concept called controlled component, whenever we are playing with form elements in react there are two diffrent things that coe into picture. 1) react state - we can hold the value of the form variable in the react state 2) value in the form element itself
-- When we try to inspesct the input tag we can there is dom element which holding the value of it and whenever we change the value the specific dom element is automatically updated
-- whenever we are using form elements with react we need to ensure the react state and dom value should be syncronozed. When we set that up for a specific component then that component would be called a controlled component
-- We need to make LoginComponent a controled component and for that lets startwith adding some state using the useState for holding username
+- Here we have `value="in28minutes"` and when we try to change the value in the input box we will get warning stating - A component is changing an uncontrolled input to be controlled. This is likely to be caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component
+- In react there is a concept called controlled component, whenever we are playing with form elements in react there are two diffrent things that come into picture. 1) react state - we can hold the value of the form variable in the react state 2) value in the form element itself
+- When we try to inspect the input tag, we can see there is dom element which is holding the value of it and whenever we change the value, the specific dom element is automatically updated
+- whenever we are using form elements with react we need to ensure the react state and dom value should be syncronized. When we set that up for a specific component then that component would be called a controlled component
+- We need to make LoginComponent a controlled component and for that start adding some state using the `useState` for holding username
 - ```js
     const [username, setUsername] = useState('in28minutes')
 
@@ -1159,8 +1159,8 @@
         <input type="text" name="username" value={username}></input>
     </div>
   ```
-- So we are tagging up the form element with the state. But now also this will be readonly because we will get warning as - You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`
-- So we need to provide a onChange  method and in which we will log the event that is happening in the input field.
+- We are tagging up the form element with the state. But now also this will be read-only because we will get warning as - You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`
+- So we need to provide a `onChange` method and in which we will log the event that is happening in the input field.
 - ```js
     function handleUsernameChange(event){
         console.log(event.target.value);
@@ -1171,7 +1171,7 @@
         <input type="text" name="username" value={username} onChange={handleUsernameChange}></input>
     </div>
   ```
-- So whatever we are going to write after the `username` in the input box it will get appended in the box. And same can be done for password i.e useState for password and other functions. SO our TodoApp.jsx is
+- So whatever we are going to write after the `username` in the input box it will get appended in the box. And same can be done for password i.e useState for password and other functions. So our TodoApp.jsx is
 - ```js
     // TodoApp.jsx
     import './TodoApp.css'
@@ -1218,7 +1218,7 @@
 
 ## Lecture 221/11:04 - Adding HardCoded Authentication - TodoReact App
 
-- For now lets add in hard coded authentication and later we will make use pf speing secirity
+- For now add in hard coded authentication and later we will make use of spring secirity
 - ```js
     // TodoApp.jsx
     const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -1255,25 +1255,25 @@
         </div>
     )
   ```
-- So here we are doing conditional rendering of the components based on their state values i.e they will only appear here if the value becomes true.
+- Here we are doing conditional rendering of the components based on their state values i.e they will only appear here if the value becomes true.
 
 ## Lecture 222/11:05 - Conditionally displaying messages in Login Component - Todo React App
 
-- The above was a complex approach we can have a easy approach as well. So we cam wrote the logic in the return statement of the Login component itself.
+- The above was a complex approach we can have a easy approach as well. We can write the logic in the return statement of the Login component itself.
 - Example to understand
     - true && `Ranga` , the answer is true
     - false && `Ranga` , the answer is false
-- This means the expression will return the value only when the first value is true otherwise it won;'t reeturn the value back. The same logic we can apply to our code.
+- This means the expression will return the value only when the first value is true otherwise it won't return the value back. The same logic we can apply to our code.
 - ```js
     {showSuccessMessage && <div className="successMessage" >Authenticated Successfully</div>}
     {showErrorMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div> }
   ```
-- So this will only be shown when the first statement is true and now we dont need both the success and error component
+- This will only be shown when the first statement is true and now we don't need both the success and error component
 
 ## Lecture 223/11:06 - Adding React Router Dom and Routing from Login to welcome Component
 
-- The way we can use routing is by using react router dom and to make use of it in our project we need to onstall it using the command `npm install react-router-dom` and upon installation it will get added to our package.json file. Now in TodoApp.js we need to `import {BrowserRouter, Routes, Route} from 'react-router-dom'` .
-- inside the `BrowserRouter` we need to configure `Routes`. And the routes that we want to configure we can express those thrugh `Route` inside the `Routes`. Inside the Route we need to tell on which `path` and which `element` needs to be opened up as shown below.
+- The way we can use routing is by using react-router-dom and to make use of it in our project we need the command `npm install react-router-dom` and upon installation it will get added to our package.json file. Now in TodoApp.js we need to `import {BrowserRouter, Routes, Route} from 'react-router-dom'` .
+- Inside the `BrowserRouter` we need to configure `Routes`. And the routes that we want to configure can be expressed through `Route` inside the `Routes`. Inside the Route we need to tell on which `path` and which `element` needs to be opened up as shown below.
 - ```js
     // TodoApp.js
     import './TodoApp.css'
@@ -1301,7 +1301,7 @@
         )
     }
   ```
-- Now when user enters the right detail we want to route from `/login` to `/welcome` page. For this we need to make use of another react hook i.e `useNavigate` imported from the `react-router-dom` . This hook returns an impertaive method for changing the location.
+- Now when user enters the right detail we want to route from `/login` to `/welcome` page. For this we need to make use of another react hook i.e `useNavigate` imported from the `react-router-dom` . This hook returns an imperative method for changing the location.
 - ```js
     // TodoApp.js
     import {BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
@@ -1318,29 +1318,29 @@
         }
     }
   ```
-- So now upon entering the correct credentials we will be navigated to the welcome component.
+- Now upon entering the correct credentials we will be navigated to the welcome component.
 
 ## Lecture 224/11:07 - Adding Error Component to our React App
 
-- If in the browser which does not exist then a blank page will appear. So instead of blank page we need to show proper error page and fpr that we will create a ErrorComponent. Again this component will be in the TodoApp.js for now only later we will change it
+- If we enter a url in the browser which does not exist then a blank page will appear. So instead of blank page we need to show proper error page and for that we will create a `ErrorComponent`. Again this component will be in the `TodoApp.js` for now only later we will change it
 - ```js
     function ErrorComponent(){
         return(
             <div className="ErrorComponent">
                 <h1>We are working really hard!</h1>
                 <div>
-                    Apologies for the 404. React out to our team at ABC-DEF-GHIJ
+                    Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ
                 </div>
             </div>
         )
     }
      <Route path='*' element={<ErrorComponent/>} />
   ```
-- So the above ErrorComponent will be shown if none of the existing paths are matched that are available in the routes.
+- So the above `ErrorComponent` will be shown if none of the existing paths are matched that are available in the routes.
 
 ## Lecture 225/11:08 - Removing Hard Coding from Welcome Component
 
-- Currently our welcomeComponents looks lime shown below where we have hard coded the name `in28minutes`. We want to pickup the username entered by the user in the input box of the login form.
+- Currently our welcomeComponents looks like shown below where we have hard coded the name `in28minutes`. We want to pickup the username entered by the user in the input box of the login form.
 - ```js
     function WelcomeComponent(){
         return(
@@ -1351,12 +1351,12 @@
         )
     }
   ```
-- Right now upon clicking on the handleSubmit button the routing is happening with the `navigate` method, now we want to add in some params to it.  For this the router parameter should capture the value of the username.
+- Right now upon clicking on the handleSubmit button the routing is happening with the `navigate` method, now we want to add in some params to it. For this the router parameter should capture the value of the username.
 - ```js
     <Route path='/welcome/:username' element={<WelcomeComponent />} />
   ```
-- We can capture the value of this `username`  in the `WelcomeComponent` by using a hook called `userParams` imported from react-router-dom. This hook returns an object of key-value pairs of the dynamic params from the current url that were matched by the route path.
-- So we need to make use of this useParams in the WelcomeComponent
+- We can capture the value of this `username` in the `WelcomeComponent` by using a hook called `userParams` imported from react-router-dom. This hook returns an object of key-value pairs of the dynamic params from the current url that were matched by the route path.
+- Se need to make use of this `useParams` in the WelcomeComponent
 - ```js
     <Route path='/welcome/:username' element={<WelcomeComponent />} />
     function handleSubmit(){
@@ -1377,20 +1377,20 @@
         )
     }
   ```
-- So there is another way to use the useParams where in the object that is returned by useParams is de-constructed and we can make use of the value catched from it and use it in our h1 tag as shown below
+- There is another way to use the `useParams` where in the object that is returned by useParams is de-constructed. We can make use of the value catched from it and use it in our h1 tag as shown below
 - ```js
     const {username} = useParams()
     console.log(username);
     <h1>Welcome {username}</h1>
   ```
-- So in the `navigate('/welcome/in28minutes')` we were making use of hard coded name, now we need to use the basic javascript syntax to make use of the variable so the `navigate('/welcome/${username}')`
+- In the `navigate('/welcome/in28minutes')` we are making use of hard coded name, we need to use the basic javascript syntax to make use of the variable. So the syntax becomes `navigate('/welcome/${username}')`
 - And when we are using variables we need to make use of ticks rather than the single quotes. So the navigate changes as 
 - ```js
     function handleSubmit(){
         if(username==='in28minutes' && password==='dummy'){
             setShowSuccessMessage(true)
             setShowErrorMessage(false)
-            navigate(`/welcome/${username}`)
+            navigate(`/welcome/${username}`) // used ticks instead of single quotes
         }else{
             setShowSuccessMessage(false)
             setShowErrorMessage(true)
@@ -1400,7 +1400,7 @@
 
 ## Lecture 226/11:07 - Getting Started with react List Todo Component
 
-- So we need to make new component named ListTodosComponent and have the Route for it also
+- We need to make new component named `ListTodosComponent` and have the Route for it also
 - ```js
     <Route path='/todos' element={<ListTodosComponent />} />
     function ListTodosComponent(){
@@ -1438,7 +1438,7 @@
         )
     }
   ```
-- here we are mapping each todo to a jsx expression which generated the tr for that specific todo.
+- We are mapping each todo to a jsx expression which generated the `tr` for that specific todo.
 - ```js
     {
         todos.map(
@@ -1451,7 +1451,7 @@
         )
     }
   ```
-- Upon loading the page we will have a warning in the console - Each child in a list should have a unique "key" prop. One practice in react is to have a unique key prop for every element in the list, react uses the id to uodate the dom elements and for react to work efficiently then we need to add key
+- Upon loading the page we will have a warning in the console - Each child in a list should have a unique "key" prop. One practice in react is to have a unique key prop for every element in the list, react uses the id to update the dom elements and for react to work efficiently we need to add key
 - ```js
     {
         todos.map(
