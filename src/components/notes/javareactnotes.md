@@ -4102,4 +4102,119 @@ So same can be done for french as well.
         }	
     }
   ```
-- 
+
+## Lecture 241/12:02 - Call Spring Boot Hello World Rest Api from React Hello World Component
+- So now we will add a button in our welcome page and when we will click that button we will invoke the `hello-world` rest api
+- ```js
+    import {useParams, Link} from 'react-router-dom'
+    export default function WelcomeComponent(){
+        const {username} = useParams()
+        console.log(username);
+
+        function callHelloWorldRestApi(){
+            console.log('Called');
+        }
+        return(
+            <div className="WelcomeComponent">
+                <h1>Welcome {username}</h1>
+                <div>
+                    Manage Your Todos. <Link to="/todos">Access Heress</Link>
+                </div>
+                <div>
+                    <button className="btn btn-success m-5" 
+                    onClick={callHelloWorldRestApi}>
+                        Call Hello World
+                    </button>
+                </div>
+            </div>
+        )
+    }
+  ```
+- So we added the button here but now we need to make the actual call to our backed rest api in the function `callHelloWorldRestApi`. The most popular framework used along with react to call rest api is called `axios`.
+- We need to install axios using the command `npm install axios`. Thiswould add the axios to our dependencies in the `package.json`
+- Then we need to `import axios from 'axios'` in the WelcomeComponent. When we make use of axios to do a api call there are three things we can do i.e then, finally and catch. All of these are defined as callback methods
+- ```js
+    function callHelloWorldRestApi(){
+        console.log('Called');
+        axios.get('http://localhost:8080/hello-world')
+            .then(
+                (response) => successfulResponse(response)
+            )
+    }
+
+    function successfulResponse(response){
+        console.log(response)
+    }
+    function errorResponse(error){
+        console.log(error)
+    }
+  ```
+- What are callback method?
+    - So if the above `get` call is successful in the axios then the callback method which we put in `then` will get called.
+    - So basically `.then((response) => successfulResponse(response))` means is if the response comes back then we want to call this and what we are making use of in here are called promises.
+    - So what happens is that `axios.get` will return you a promise back and what we are saying in the abo e statement is that if it is successful then do this
+    - So approach to call is asynchronous approach
+    - We can also define if everything does not go well the we can use catch if there is an exception
+        - `.catch((error) => errorResponse(error))`
+    - And there is something called `finally` and this will be called irrespective of whether its success or a failure and this is where we typically do the clean up
+        - `.finally(() => console.log('cleanup'))`
+    - So our method gets updated as
+    - ```js
+        // WelcomeComponent.jsx
+        function callHelloWorldRestApi(){
+        console.log('Called');
+        axios.get('http://localhost:8080/hello-world')
+            .then((response) => successfulResponse(response))
+            .catch( (error) => errorResponse(error))
+            .finally(() => console.log('cleanup'))
+        }
+
+        function successfulResponse(response){
+            console.log(response);
+        }
+        function errorResponse(error){
+            console.log(error);
+        }
+      ```
+- And now uppon hitting the button will give error as - `Access to XMLHttpRequest at 'http://localhost:8080/hello-world' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- So its like we are calling from one website to another website and by default calls from other websites are disbaled
+
+### Lecture 243/12:03 - Enabling CORS request for spring boot Rest Api
+
+- Our request are going from `localhost:3000` to `localhost:8080` and these are Cross Origin Requests.
+- We need to tell spring to allow request from `localhost:3000`
+- Configuration for CORS confifuration needs to be defines in class `WebMvcConfigurer`
+- To go to this class in our eclipse ide press ctrl+shit+t then search in box `WMC`
+- This `WebMvcConfigurer` has a method  `addCorsMappings(CorsRegistry registry)`. This method allows to Configure "global" cross-origin request processing.
+- Now we need to define a bean for `WebMvcConfigurer` where we will override the specific method with our custom configuration.
+- ```java
+    // 
+    package com.in28minutes.rest.webservices.restfulwebservices;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.web.servlet.config.annotation.CorsRegistry;
+    import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+    @SpringBootApplication
+    public class RestfulWebServicesApplication {
+
+        public static void main(String[] args) {
+            SpringApplication.run(RestfulWebServicesApplication.class, args);
+        }
+        
+        @Bean
+        public WebMvcConfigurer corConfigurer() {
+            return new WebMvcConfigurer() {
+                public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**")
+					.allowedMethods("*")
+					.allowedOrigins("http://localhost:3000");
+			    }
+            };
+        }
+    }
+  ```
+- So here in the bean `WebMvcConfigurer` we are returning the new instance of `WebMvcConfigurer` and also overrinding the `addCorsMappings` method and then adding mappings, methods and origins from our react app.
+- Now upon clicking on the button we will get our repsonse successfully.
