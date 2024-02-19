@@ -4218,3 +4218,579 @@ So same can be done for french as well.
   ```
 - So here in the bean `WebMvcConfigurer` we are returning the new instance of `WebMvcConfigurer` and also overrinding the `addCorsMappings` method and then adding mappings, methods and origins from our react app.
 - Now upon clicking on the button we will get our repsonse successfully.
+
+### Lecture 244/12:04 - Invoking  spring boot hello world bean & path param REST API from react
+
+- We need to show the rest api responses in our welcome page
+- ```js
+    // WelcomeComponent.jsx
+        const [message, setMessage] = useState(null)
+        function callHelloWorldRestApi(){
+            console.log('Called');
+            axios.get('http://localhost:8080/hello-world')
+                .then((response) => successfulResponse(response))
+                .catch( (error) => errorResponse(error))
+                .finally(() => console.log('cleanup'))
+        }
+
+        function successfulResponse(response){
+            console.log(response.data);
+            setMessage(response.data)
+        }
+        function errorResponse(error){
+            console.log(error);
+        }
+        <div>
+            <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                Call Hello World
+            </button>
+        </div>
+        <div className="text-info">{message}</div>
+  ```
+- So what we are doing here is having a button which will callthe method `callHelloWorldRestApi` inside which we are making call to `http://localhost:8080/hello-world` and then upon success we are passing on the received repsonse to another method `successfulResponse`.
+- Now we can see in the response that the response contains many things but what we want is the actual response that is needed ti be shown. So the response contains `data` which has the actaul response and we have use a variable `message` to show. So this variable needs to be filled with that data and for that we have used the `setMessage` method.
+- Similarly we can call `http://localhost:8080/hello-world-bean` api but this api returns a bean `message`and hence in the `successfulResponse` method while setting the message variable we need to actually set the message as `setMessage(response.data.message)` otherwise ww will not get the response.
+
+ ### Lecture 245/12:05 - Refactoring Spring Boot REST API Invocation Code to Nee Module
+
+ - We are making API call directly from our component and that is not a good practice we need to make using rest api calls in a separate service. So inside todo folder create a new folder `api` and in it create new ja file as `HelloWorldApiService.js`.
+- ```js
+    // HelloWorldApiService.js
+    import axios from "axios";
+
+    // export function retrieveHelloWorldBean(){
+    //     return axios.get('http://localhost:8080/hello-world-bean')
+    // }
+    // We can call the api using the above syntax but the below is a preffered.
+    // Also in the in below syntax we don't explicitly need to return.
+    export const retrieveHelloWorldBean = () => axios.get('http://localhost:8080/hello-world-bean')
+  ```
+- And now we can make use of this service in our `WelcomeCompoent`
+- ```js
+    // WelcomeComponent.js
+    import {useParams, Link} from 'react-router-dom'
+    import { useState } from 'react';
+    import { retrieveHelloWorldBean } from './api/HelloWorldApiService'; // imported here service
+
+    export default function WelcomeComponent(){
+        const {username} = useParams()
+        const [message, setMessage] = useState(null)
+
+        function callHelloWorldRestApi(){
+            retrieveHelloWorldBean() // just made the call here and everything remains same
+                .then((response) => successfulResponse(response))
+                .catch( (error) => errorResponse(error))
+                .finally(() => console.log('cleanup'))
+        }
+
+        function successfulResponse(response){
+            console.log(response);
+            setMessage(response.data.message)
+        }
+        function errorResponse(error){
+            console.log(error);
+        }
+        return(
+            <div className="WelcomeComponent">
+                <h1>Welcome {username}</h1>
+                <div>
+                    Manage Your Todos. <Link to="/todos">Access Heress</Link>
+                </div>
+                <div>
+                    <button className="btn btn-success m-5" 
+                    onClick={callHelloWorldRestApi}>
+                        Call Hello World
+                    </button>
+                </div>
+                <div className="text-info">{message}</div>
+            </div>
+        )
+    }
+  ```
+
+### Lecture 246/12:06 - Following Axios Best Practices in Spring Boot Rest Api 
+
+- We need to make cal to our path variable rest api and for that let's add another method in our service.
+- ```js
+    import axios from "axios";
+
+    // export function retrieveHelloWorldBean(){
+    //     return axios.get('http://localhost:8080/hello-world-bean')
+    // }
+
+    export const retrieveHelloWorldBean = () => axios.get('http://localhost:8080/hello-world-bean')
+
+    export const retrieveHelloWorldPathVariable
+        = (username) => axios.get(`http://localhost:8080/hello-world/path-variable/${username}`)
+  ```
+- We needed to call an api which requires a parameter username and that's why we have passed in a parameter `username`. To make use of this user name in the api we need to make using javascript syntax `${variable}` and in case we are making use of this syntax we need to make the api call in back ticks and we can make the api call in single quotes.
+- Also as we can see that `http://localhost:8080` is getting repeated everytime we are making call to our api service. So the axios provides a way to get rid of this boilerplate code and for that we need to create an instance of axios as shwon below
+- ```js
+    import axios from "axios";
+
+    const apiClient = axios.create(
+        {
+            baseURL : 'http://localhost:8080'
+        }
+    )
+
+    export const retrieveHelloWorldBean = () => apiClient.get('/hello-world-bean')
+
+    export const retrieveHelloWorldPathVariable
+        = (username) => apiClient.get(`/hello-world/path-variable/${username}`)
+  ```
+- So now our code looks more refine. And we need to make use of this method in our Welcome component and for now only we will hard cod ethe username while calling the rest api
+- ```js
+    function callHelloWorldRestApi(){
+        retrieveHelloWorldPathVariable('Ranga')
+            .then((response) => successfulResponse(response))
+            .catch( (error) => errorResponse(error))
+            .finally(() => console.log('cleanup'))
+    }
+  ```
+- Now we will move on to working with our todos.
+ 
+### Lecture 247/12:07 - Creating Retrieve Todos Spring Boot REST API Get Method
+
+- Right now we have two files our in our Java Application regarding todo  and those are `Todo.java` and `TodoService.Java` which are available in the `package com.in28minutes.rest.webservices.restfulwebservices.todo`.
+- ```java
+    // Todo.java
+    package com.in28minutes.rest.webservices.restfulwebservices.todo;
+    import java.time.LocalDate;
+
+    public class Todo {
+        public Todo() {}
+        
+        public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+            super();
+            this.id = id;
+            this.username = username;
+            this.description = description;
+            this.targetDate = targetDate;
+            this.done = done;
+        }
+
+        private int id;
+        private String username;
+        private String description;
+        private LocalDate targetDate;
+        private boolean done;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public LocalDate getTargetDate() {
+            return targetDate;
+        }
+
+        public void setTargetDate(LocalDate targetDate) {
+            this.targetDate = targetDate;
+        }
+
+        public boolean isDone() {
+            return done;
+        }
+
+        public void setDone(boolean done) {
+            this.done = done;
+        }
+
+        @Override
+        public String toString() {
+            return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+                    + targetDate + ", done=" + done + "]";
+        }
+    }
+  ```
+- And the Todo.Service.java
+- ```java
+    package com.in28minutes.rest.webservices.restfulwebservices.todo;
+    import java.time.LocalDate;
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.function.Predicate;
+    import org.springframework.stereotype.Service;
+    
+    @Service
+    public class TodoService {
+        
+        private static List<Todo> todos = new ArrayList<>();    
+        private static int todosCount = 0;
+        
+        static {
+            todos.add(new Todo(++todosCount, "in28minutes","Get AWS Certified", 
+                                LocalDate.now().plusYears(10), false ));
+            todos.add(new Todo(++todosCount, "in28minutes","Learn DevOps", 
+                    LocalDate.now().plusYears(11), false ));
+            todos.add(new Todo(++todosCount, "in28minutes","Learn Full Stack Development", 
+                    LocalDate.now().plusYears(12), false ));
+        }
+        
+        public List<Todo> findByUsername(String username){
+            Predicate<? super Todo> predicate = 
+                    todo -> todo.getUsername().equalsIgnoreCase(username);
+            return todos.stream().filter(predicate).toList();
+        }
+        
+        public Todo addTodo(String username, String description, LocalDate targetDate, boolean done) {
+            Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+            todos.add(todo);
+            return todo;
+        }
+        
+        public void deleteById(int id) {
+            Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+            todos.removeIf(predicate);
+        }
+
+        public Todo findById(int id) {
+            Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+            Todo todo = todos.stream().filter(predicate).findFirst().get();
+            return todo;
+        }
+
+        public void updateTodo(Todo todo) {
+            deleteById(todo.getId());
+            todos.add(todo);
+        }
+    }
+  ```
+- Now we will start with creating a TodoResource which will be a RestController.
+- ```java
+    // TodoResource.java
+    package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+    import java.util.List;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    public class TodoResource {
+        
+        private TodoService todoService;
+        
+        public TodoResource(TodoService todoService) {
+            this.todoService = todoService;
+        }
+        
+        @GetMapping("/users/{username}/todos")
+        public List<Todo> retrieveTodos(@PathVariable String username) {
+            return todoService.findByUsername(username);
+        }
+    }
+  ```
+- So we have made use of `findByUsername` of the `TodoService` and called it in our Controller and now upon hitting the url `http://localhost:8080/users/in28minutes/todos` we will get back the response as 
+- ```json
+    [
+        {
+        "id": 1,
+        "username": "in28minutes",
+        "description": "Get AWS Certified",
+        "targetDate": "2034-02-17",
+        "done": false
+        },
+        {
+        "id": 2,
+        "username": "in28minutes",
+        "description": "Learn DevOps",
+        "targetDate": "2035-02-17",
+        "done": false
+        },
+        {
+        "id": 3,
+        "username": "in28minutes",
+        "description": "Learn Full Stack Development",
+        "targetDate": "2036-02-17",
+        "done": false
+        }
+    ]
+  ```
+- We just now need to call the above RestController `retrieveTodos` in our react front end.
+
+### Lecture 248/12:08 - Displaying Todos from Spring Boot REST API in React App
+
+- Now we need to create similar service fortodos that is `TodoApiService.js` 
+- ```js
+    // TodoApiService.js
+    import axios from "axios";
+
+    const apiClient = axios.create(
+        {
+            baseURL: 'http://localhost:8080'
+        }
+    )
+
+    export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+  ```
+- Right now we are getting our todos in react front end from the `ListTodosComponent.jsx` as
+- ```js
+    // ListTodosComponent.jsx
+    const todos =[
+        {id:1, description: 'Learn AWS', done: false, targetDate: targetDate},
+        {id:2, description: 'Learn Full Stack Dev', done: false, targetDate: targetDate},
+        {id:3, description: 'Learn DevOps', done: false, targetDate: targetDate},
+    ]
+  ```
+- Let's comment the above todos so that our react front will show the empty todos list. And what we want to do is set the todos from the backend that is we want to fetch the list of todos which are available in our `TodoService.java` by calling the rest api.
+- ```java
+    // TodoService.java
+    static {
+		todos.add(new Todo(++todosCount, "in28minutes","Get AWS Certified", 
+							LocalDate.now().plusYears(10), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(11), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(12), false ));
+	}
+  ```
+- We know that our `TodoResource` api `public List<Todo> retrieveTodos(@PathVariable String username)` is currently fetching the above todos list and the same list we want to show in the front end and fro that we need to set the todos after getting fetch by api in a `todos` variable and for that we need to make use of `useState`
+- ```js
+    // ListTodosComponent.jsx
+    import { useEffect, useState } from "react";
+    import { retrieveAllTodosForUsernameApi } from "./api/TodoApiService";
+
+    export default function ListTodosComponent(){
+        const today = new Date();
+        const targetDate = new Date(today.getFullYear()+12, today.getMonth(), today.getDay())
+        const [todos, setTodos] = useState([])
+
+        useEffect(
+            () => refreshTodos()
+        )
+
+        function refreshTodos(){
+            retrieveAllTodosForUsernameApi('in28minutes')
+            .then(response => {
+                setTodos(response.data)
+            })
+            .catch(error => console.log(error))
+        }
+
+        return(
+            <div className="container">
+                <h1>Things You Want to Do!</h1>
+                <div>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Description</td>
+                                <td>Is Done?</td>
+                                <td>Target Date</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                todos.map(
+                                    todo => ( 
+                                        <tr key={todo.id}>
+                                            <td>{todo.id}</td>
+                                            <td>{todo.description}</td>
+                                            <td>{todo.done.toString()}</td>
+                                            {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                            <td>{todo.targetDate.toString()}</td>
+                                        </tr>
+                                    )
+                                )
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
+    }
+  ```
+- When you want to call the data as soon as the initial version of the component is ready we can make use of the `useEffect` hook frpm the react to call the method on component ready.
+- Also in the above component we have made while in table `todo.targetDate.toDateString()` method to the `todo.targetDate.toString()` beacause the backend is sending the date in string format and earlir we were taking the date in the Date format.
+- ![todos fetch from the static list in the Todo Service class](todosFromStaticJavaList.PNG)
+- Right now the `useEffect` is calling the `refreshTodos` method continusoly. We need to tell the useEffect when to call it. So we can see that the useEffect is
+- ```js
+    useEffect(effect: EffectCallback, deps?: DependencyList): void;
+  ```
+- So in the above we can see there is a dependency list which basically means what are the things this is dependent on. In this specific case we don't have any dependencies we just want to load the todos list at the start and that's it So we will pass in an empty array in the useEffect dependency list. And upon doing this our useEffect will not call the  `refreshtodos` method again and again.
+- ```js
+    // ListTodosComponent.jsx
+    useEffect(
+        () => {
+            refreshTodos()
+        }, [] 
+    )
+  ```
+
+### Lecture 249/12:09 - Creating Retrieve Todo and Delete Todo Spring Boot REST API Methods
+
+- ```java
+    // TodoResource.java
+    @GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username, @PathVariable int id) {
+		return todoService.findById(id);
+	}
+    //TodoService.java
+    public Todo findById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		return todo;
+	}
+  ```
+- And the Delete Method
+- ```java
+    //TodoResource.java
+    @DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username, @PathVariable int id){
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+    //TodoService.java
+    public void deleteById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+  ```
+- So what we are doing in the delete method id that we are return a no content response back upon succesful deletion of the todo. We can even send back response as ok 200 but here we are sending as no content as 204
+
+### Lecture 250/12:10 - Adding Delete Feature to react frontend
+
+- So start with calling the deleteById api from the react service.
+- ```js
+    // TodoApiService.js
+    export const deleteTodoApi
+    = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+  ```
+- Noe we need to call this in pour list component
+- ```js
+    // ListTodosComponent.jsx
+    const [message, setMessage] = useState(null)
+    function deleteTodo(id){
+        deleteTodoApi('in28minutes', id)
+        .then(
+            () => {
+                setMessage(`Deleted todo with id = ${id} successfully`)
+                refreshTodos()
+            }
+        )
+        .catch()
+    }
+    <tbody>
+        {
+            todos.map(
+                todo => ( 
+                    <tr key={todo.id}>
+                        <td>{todo.description}</td>
+                        <td>{todo.done.toString()}</td>
+                        <td>{todo.targetDate.toString()}</td>
+                        <td><button 
+                                className="btn btn-warning"
+                                onClick={() => deleteTodo(todo.id)}
+                                >Delete
+                            </button></td>
+                    </tr>))
+        }
+    </tbody>
+  ```
+- Here in the table we have made call to the ``deleteTodo` method by passing in id of the todo which we want to delete. And as we want to pass some parameter to a method while calling it on button press we need to make use the above onClick syntax.
+  
+### Lecture 251/12:11 - Setting Username ino react auth context
+
+- Untill now while making the calls to the api we hardcoded the username. We can put the username in the auth context and when the user logs in then the username will be stored in the authcontext and we can make use of the username. So in the `AuthContext.js` we can have the `username` variable
+- ```js
+    // AuthContext.js
+    import { createContext, useContext, useState } from "react";
+
+    export const AuthContext = createContext()
+    export const useAuth = () => useContext(AuthContext)
+
+    export default function AuthProvider({children}){
+        const [isAuthenticated, setAuthenticated] = useState(false)
+        const [username, setUsername] = useState(null)
+
+        function login(username, password){
+            if(username==='in28minutes' && password==='dummy'){
+                setAuthenticated(true)
+                setUsername(username) // if successfull setting the name here
+                return true
+            }
+            else{
+                setAuthenticated(false)
+                setUsername(null) // if error then setting to null
+                return false
+            }
+        }
+
+        function logout(){
+            setAuthenticated(false)
+        }
+
+        return(
+            <AuthContext.Provider value={{isAuthenticated, login, logout, username}}> // And here making available to other components
+                {children}
+            </AuthContext.Provider>
+        )
+    }
+  ```
+- And now we can make use of the username from authcontext while making call to the Rest Api's.
+- ```js
+    // ListTodosComponent.jsx
+    import { useAuth } from "./security/AuthContext";
+    const authContext = useAuth()
+    const username = authContext.username
+    function refreshTodos(){
+        retrieveAllTodosForUsernameApi(username) // replace wherever we wrote hardcoded 'in28minutes'
+        .then(response => {
+            setTodos(response.data)
+        })
+        .catch(error => console.log(error))
+    }
+  ```
+
+### Lecture 252/12:12 - Creating todo react component to display todo page
+
+- We will start creating a update todo button
+- ```js
+    // ListTodosComponent.jsx
+    <td><button 
+            className="btn btn-success"
+            onClick={() => updateTodo(todo.id)}
+            >Update
+        </button>
+    </td>
+  ```
+- But we cannot call the rest api deirectly for the update todo for that we need to redirect to specific page where we can see the details of our existing todo. So we need to create new file `TodoComponent.jsx` in the same `todo` folder.
+- ```js
+    // TodoComponent.jsx
+    export function TodoComponent(){
+        return(
+            <div className="container">
+                <h1>Enter Todo Details</h1>
+            </div>
+        )
+    }
+    // TodoApp.jsx
+        <Route path='/todo/:id' element={
+        <AuthenticatedRoute>
+            <TodoComponent/>
+        </AuthenticatedRoute>
+        } />
+  ```
