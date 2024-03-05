@@ -402,13 +402,13 @@
     // UserDaoService.java
     public User findOne(int id) {
         // Here we need to make use of a predicate and we need to make use it because
-        // suppose I have a user id if I have a user then I want to check if his Id = id which passed in
+        // suppose I have a user id if I have a user then I want to check if his Id is equal to the passed in id
 		// if they are same then we want to get that user and we want to return it back
 		Predicate<? super User> predicate = user -> user.getId().equals(id);
 		return users.stream().filter(predicate).findFirst().get();
 		// the way we can retrieve a specific user from this list by making use of functional programming
 		// for this we will convert the users list to a stream and from the list we want to filter based on a predicate
-		// so now we would want to findFirst one which is matching that id this would return a optional back on which you need to do a get()
+		// so now we would want to find first one which is matching that id and this would return a optional back on which you need to do a get()
 	}
   ```
 - Now we need to call this method from our RestController as shown below
@@ -424,7 +424,7 @@
 
 - To transmit user details to a list of users, we need to include these details within our request. To achieve this, we must use an annotation named `@RequestBody`. This annotation specifies that a method parameter should be associated with the body of the web request. Our request will contain a body that encapsulates all the necessary user details to be added, which will then be mapped to the **User** bean.
 - In our *UserDaoService*, we are required to implement a `saveUser()` method. This method will involve adding the details received from the client to the list of users.
-- To automate the assignment of user ID's dynamically without manual intervention, we'll introduce a variable named *usersCount*. This variable will be utilized to increment the IDs within the static user list, as illustrated below.
+- To automate the assignment of user ID's dynamically without manual intervention, we'll introduce a variable named *usersCount*. This variable will be utilized to increment the ID's within the static user list, as illustrated below.
 - ```java
     private static int usersCount = 0;
 	
@@ -453,7 +453,7 @@
 - Testing a POST request directly from the browser isn't feasible. To accomplish this task, we'll require a testing client such as Postman, Talend API tester, etc. For now, we'll utilize the Talend API tester. Please access Google, search for the Talend API tester extension, and add it to our Chrome extensions.
 - Within the Talend API tester, select the POST method and send the name and birthDate of the new user that you intend to add to our list of users. A successfull addition of the user will prompt a response code of 200.
 
-## Lecture 139/ Step 8.10 - Enhancing POST Method to return correct HTTP Status Code and Location
+## Lecture 152/ Step 8.10 - Enhancing POST Method to return correct HTTP Status Code and Location
 
 - Return the **correct response status**
     - Resource is not found => 404
@@ -467,7 +467,7 @@
     - 400 - Bad Request (such as validation error)
     - 404 - Resource Not Found
     - 500 - Server Error
-- Upon the successful creation of the user, the appropriate response status for us is 201. To achieve this, our `createUser()` method should return this response status. For this purpose, we'll utilize the `ResponseEntity` class found in *org.springframework.http*. There are several classes available in *org.springframework.http* that correspond to different response statuses we aim to return.
+- Upon the successful creation of the user, the appropriate response status is 201. To achieve this, our `createUser()` method should return this response status. For this purpose, we'll utilize the `ResponseEntity` class found in *org.springframework.http*. There are several classes available in *org.springframework.http* that correspond to different response statuses we aim to return.
 - The above method is updated as shown below.
 - ```java
     @PostMapping("/users")
@@ -478,7 +478,7 @@
   ```
 - Upon sending this request from the *Talend API tester*, the response status returned will be 201, visible within the Talend API tester window.
 - ![Talend API POST Mapping Result 1](Talend_API_POST_Mapping_Result_1.PNG)
-- Utilizing the `created()` method of the *ResponseEntity* class is one option among several others available, such as `accepted()`, `badRequest()`, `interServerError()`, `notFound()` and numerous more. The choice of method depends entirely on the functionality of your specific method. Currently, after the creation of a user, we've returned the location as **null**. We'll address this issue later. Let's continue improving our API for now.
+- Utilizing the `created()` method of the *ResponseEntity* class is one option among several others available, such as `accepted()`, `badRequest()`, `interServerError()`, `notFound()` and numerous more. The choice of method depends entirely on the functionality of the specific method. Currently, after the creation of a user, we've returned the location as **null**. We'll address this issue later. Let's continue improving our API for now.
 - When constructing a REST API, it's crucial to consider it from the perspective of its consumers. As the consumer of this API is attempting to create a user, receiving a status of 201 upon successfull creation is beneficial. Additionally, it would be advantageous to return the URI of the created user. For instance, we can specify that the created user URI is /users/4, enabling the consumer to verify it by visiting the URL localhost:8080/users/4.
 - To return the URL of the created resource, typically, we utilize a specific HTTP header called **location**. The `created()` method in the ResponseEntity class accepts a URI location, allowing us to include the location of the newly created resource in the HTTP header.
 - ```java
@@ -510,10 +510,10 @@
 - ![Getting back location after successfull creation of the user as /users/4](Talend_API_POST_Mapping_Result_2.PNG)
 - As seen in the image we have received location and upon clicking on that location the consumer of the API can see the newly created user.
 
-## Lecture 140/ Step 8.11 - Implementing Exception Handling - 404 Resource Not Found
+## Lecture 153/ Step 8.11 - Implementing Exception Handling - 404 Resource Not Found
 
 - When querying for a non-existing user, it triggers the return of a whitelabel error page displaying a NoSuchElementException: "No Value Present". This exception originates from the `get()` method within our `findOne()` method's return statement in the UserDaoService. 
-- To rectify this, rather than using the `get()` method, we will utilize `orElse()`. This alternative method returns the value if it's present; otherwise, it returns the value we provide, which in this case is null.
+- To rectify this, rather than using the `get()` method, we will utilize `orElse()`. This alternative method returns the value if it's present, otherwise, it returns the value we provide, which in this case is null.
 
 - ```java
     // UserResource
@@ -562,14 +562,13 @@
         public UserNotFoundException(String message) {
             super(message);
         }
-
     }
   ```
 - After running the application and accessing the URL http://localhost:8080/users/7, the result will be a whitelabel error page indicating "Not Found" with a status of 404. Additionally, it will display the returned message "id:7". 
 - ![Getting back error as 404 after trying to fetch the non existing user](Talend_API_POST_Mapping_Result_3.PNG)
-## Lecture 141 - Resources Skip
+## Lecture 154 - Resources Skip
 
-## Lecture 142/ Step 8.12 - Implementing Generic Exception Handling for all resources
+## Lecture 155/ Step 8.12 - Implementing Generic Exception Handling for all resources
 
 - To create a custom structure for error responses, we'll define a bean that represents the custom exception structure.
 - Create a class named **ErrorDetails** within the package **com.in28minutes.rest.webservices.restfulwebservices.exception**. This class should include data members such as timeStamp, message, and details.
@@ -4671,7 +4670,7 @@ So same can be done for french as well.
   ```
 - So what we are doing in the delete method id that we are return a no content response back upon succesful deletion of the todo. We can even send back response as ok 200 but here we are sending as no content as 204
 
-### Lecture 250/12:10 - Adding Delete Feature to react frontend
+### Lecture 251/12:10 - Adding Delete Feature to react frontend
 
 - So start with calling the deleteById api from the react service.
 - ```js
@@ -4712,7 +4711,7 @@ So same can be done for french as well.
   ```
 - Here in the table we have made call to the ``deleteTodo` method by passing in id of the todo which we want to delete. And as we want to pass some parameter to a method while calling it on button press we need to make use the above onClick syntax.
   
-### Lecture 251/12:11 - Setting Username ino react auth context
+### Lecture 252/12:11 - Setting Username ino react auth context
 
 - Untill now while making the calls to the api we hardcoded the username. We can put the username in the auth context and when the user logs in then the username will be stored in the authcontext and we can make use of the username. So in the `AuthContext.js` we can have the `username` variable
 - ```js
@@ -4765,7 +4764,7 @@ So same can be done for french as well.
     }
   ```
 
-### Lecture 252/12:12 - Creating todo react component to display todo page
+### Lecture 253/12:12 - Creating todo react component to display todo page
 
 - We will start creating a update todo button
 - ```js
@@ -4777,7 +4776,7 @@ So same can be done for french as well.
         </button>
     </td>
   ```
-- But we cannot call the rest api deirectly for the update todo for that we need to redirect to specific page where we can see the details of our existing todo. So we need to create new file `TodoComponent.jsx` in the same `todo` folder.
+- But we cannot call the rest api directly for the update todo because we need to redirect to specific page where we can see the details of our existing todo. So we need to create new file `TodoComponent.jsx` in the same `todo` folder.
 - ```js
     // TodoComponent.jsx
     export function TodoComponent(){
@@ -4787,10 +4786,756 @@ So same can be done for french as well.
             </div>
         )
     }
+
+    // Also add the above component to our routes
     // TodoApp.jsx
         <Route path='/todo/:id' element={
-        <AuthenticatedRoute>
-            <TodoComponent/>
-        </AuthenticatedRoute>
+            <AuthenticatedRoute>
+                <TodoComponent/>
+            </AuthenticatedRoute>
         } />
   ```
+- So here we created a new component `TodoComponent.jsx` and we are adding in the route to it along with the `id`. This `id` will be the id of the todo which is getting clicked for update. So when the update button on the `ListTodosComponent.jsx` page is clicked we want the user to get navigated to the `TodoComponent.jsx` and for navigating purpose we need to make use of `useNavigate` imported from `react-router-dom`.
+- ```js
+    // ListTodosComponent.jsx
+    import { useNavigate } from "react-router-dom";
+    const navigate = useNavigate()
+
+    function updateTodo(id){
+        console.log('in the update todo' + id)
+        navigate(`/todo/${id}`)
+    }
+  ```
+- We will land on the `TodoComponent.jsx` page and now we want the details of the todo which we want to update and for that we need an api `retrieveTodoApi` in our `TodoApiService.js`
+- ```js
+    // TodoApiService.js
+    export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+  ```
+- Now we want the id in this `TodoComponent.jsx` and for that we are going to make use of `useParams`
+- ```js
+    // 
+    import { useParams } from "react-router-dom"
+    import { retrieveTodoApi } from "./api/TodoApiService"
+    import { useAuth } from "./security/AuthContext"
+    import { useEffect } from "react"
+
+    export default function TodoComponent(){
+        const {id} = useParams()
+        const authContext = useAuth()
+        const username = authContext.username
+
+        function retrieveTodos(){
+            retrieveTodoApi(username, id)
+                .then(response => console.log(response))
+                .catch(error => console.log(error))
+        }
+
+        useEffect(() =>
+            retrieveTodos()
+        , [id])
+
+        return(
+            <div className="container">
+                <h1>Enter Todo Details</h1>
+            </div>
+        )
+    }
+  ```
+- So here we are able to fetch the details of the todo which was clicked. Now we want to allow the editing of description and targetDate. And for that we need to create the state variable for them.
+- ```js
+    //
+    const [description, setDescription] = useState('')
+    function retrieveTodos(){
+        retrieveTodoApi(username, id)
+            .then(response => setDescription(response.data.description))
+            .catch(error => console.log(error))
+    }
+
+    useEffect(() =>
+        retrieveTodos()
+    , [id])
+
+    return(
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>Description : {description}</div>
+        </div>
+    )
+  ```
+
+### Lecture 254/12:13 - Adding Formik and Moment Libraries to display Todo React Component
+
+- We want the use to be able to update the details of the todo so we will create a form and for that we will make use of library formik and for the date we will use moment library and to install them 
+- `npm install formik` and `npm install moment` this will add them to our package.json
+- In `TodoComponent.jsx` we need to `import {Formik} from formik`. Inside the fromiks tags is where you would define a function returning the jsx back i.e whatever jsx you would want to show you would return it as a return value of the function and this function would accept `props` as input  and it would return a jsx back as shown below.
+- ```js
+    // TodoComponent.jsx
+    return(
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <Formik>
+            {
+                (props) => (
+                    <div>Some Content</div>
+                )
+            }  
+            </Formik>
+        </div>
+    )
+  ```
+- So now in place of `Some Content` in the above code we need to place our `Form` which will imported from `formik`. And inside the form will be all our elements and all elements in the form are included in a `fieldset`. Each field would have a label and typically we would have a input however when it comes to formik in place of `input` we need to use somethind called `Field` imported from `formik`.
+- For formik we can place the initial values as well so will create a object and pass in the initial values thatwe are getting in from the `retrieveTodos` method i.e what we are getting in the `setDescription` and `setTargetDate`.
+- ```jsx
+    const [description, setDescription] = useState('')
+    const [targetDate, setTargetDate] = useState('')
+    function retrieveTodos(){
+        retrieveTodoApi(username, id)
+            .then(response => {
+                setDescription(response.data.description)
+                setTargetDate(response.data.targetDate)
+            })
+            .catch(error => console.log(error))
+    }
+
+        return(
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <Formik initialValues={{description, targetDate}}>
+            {
+                (props) => (
+                    <Form>
+                        <fieldset className="form-group">
+                            <label>Description</label>
+                            <Field type="text" className="form-control" name="description"/>
+                        </fieldset>
+                        <fieldset className="form-group">
+                            <label>Target Date</label>
+                            <Field type="date" className="form-control" name="targetDate"/>
+                        </fieldset>
+                    </Form>
+                )
+            }            
+            </Formik>
+        </div>
+    )
+  ```
+- Now upon running and clicking on the update todos we won't get the data in the text boxes bcause we have taken the useState value of both description and targetDate as ''. So when the form is creted the initialization would happend with the initial value which is '' in our useState and once the function execution completes we would need to re-initialize formik. By default formik would not do re-initialization so we would need to configure formik to enable re-initialization.
+- ```js
+    <Formik initialValues={{description, targetDate}}
+                enableReinitialize={true}
+    >
+  ```
+- Let's now add a save button below the targetDate field. `<div><button className="btn btn-success m-5" type="submit">Save</button></div>` and we want to do something on the submit of this speciific form and for that we need to use `onSubmit`
+- ```js
+    function onSubmit(values){
+            console.log(values)
+    }
+    <Formik initialValues={{description, targetDate}}
+                enableReinitialize={true}
+                onSubmit={onSubmit}
+    >
+  ```
+
+### Lecture 255/12:14 - Adding Validation to Todo React Component using Formik
+
+- We want to ensure that the updated todo decsription should atleast have 5 characters and also validate the targetDate. For this we will make use of validate
+- ```js
+    function validate(values){
+        let errors = {
+            description: 'Enter a valid description'
+            targetDate: 'Enter a valid target date'
+        }
+        console.log(values);
+    }
+    <Formik initialValues={{description, targetDate}}
+                enableReinitialize={true}
+                onSubmit={onSubmit}
+                validate={validate}
+            >
+  ```
+- So now we have introduced a hard coded error in description and the `onSubmit` won't get called uless there is no error in the validate. 
+- Now we need to make use of `ErrorMessage` imported from the formik in our form.
+- ```js
+        function onSubmit(values){
+        console.log(values)
+    }
+
+    function validate(values){
+        let errors = {
+            description: 'Enter a valid description',
+            targetDate: 'Enter a valid target date'
+        }
+        console.log(values);
+        return errors;
+    }
+
+    return(
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <Formik initialValues={{description, targetDate}}
+                enableReinitialize={true}
+                onSubmit={onSubmit}
+                validate={validate}
+            >
+            {
+                (props) => (
+                    <Form>
+                        <ErrorMessage
+                            name="description"
+                            component="div"
+                            className="alert alert-warning"
+                        />
+                        <ErrorMessage
+                            name="targetDate"
+                            component="div"
+                            className="alert alert-warning"
+                        />
+  ```
+- Now let's add real logic for validation
+- ```js
+    function validate(values){
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid target date'
+        }
+        if(values.description.length<5){
+            errors.description = 'Enter atleast 5 characters';
+        }
+        if(values.targetDate == null || values.targetDate == '' || moment(values.targetDate).isValid()){
+            errors.targetDate= 'Enter a target date'
+        }
+        console.log(values);
+        return errors;
+    }
+    <Formik initialValues={{description, targetDate}}
+                enableReinitialize={true}
+                onSubmit={onSubmit}
+                validate={validate}
+                validateOnChange={false}
+                validateOnBlur={false}
+    >
+  ```
+- `validateOnChange` and `validateOnBlur` keep tracks of the entered datain the field which means if one character is changed then also it trcas it and when we go to next field then also it tracl=ks it and we dont want that we only want to validate when clicked on save and thats why we made it false.
+  
+### Lecture 257/12:15 - Adding Update Todo and Create Todo REST API to Spring Boot Backend API
+
+- We will build the PUT mapping so that we will be able to uodate the TODO details and we will see how to create a new todo in this step
+- ```java
+    // TodoResource.java
+    @PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username, @PathVariable int id,
+			@RequestBody Todo todo){
+		todoService.updateTodo(todo);
+		return todo;
+	}
+    // TodoService.java
+    public void updateTodo(Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+	}
+  ```
+- So now we will work on POST method to create a new todo
+- ```java
+    // TodoResource.jva
+    @PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username, @RequestBody Todo todo) {
+		Todo createdTodo = todoService.addTodo(username, todo.getDescription(), todo.getTargetDate(), todo.isDone());
+		return createdTodo;
+	}
+    // TodoService.java
+    public Todo addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+		todos.add(todo);
+		return todo;
+	}
+  ```
+
+## 258/12:16 - Adding Update Feature to React Frontend
+
+- Now wehen we click on update button in `TodoComponent.jsx` we want to make an api call to the backend updateTodo api and we will call the method inside the Submit method of the component
+- ```js
+    // TodoApiService.js
+    export const updateTodoApi
+    = (username, id, todo) => apiClient.put(`/users/${username}/todos/${id}`, todo)
+    // TodoComponent.jsx
+    const navigate = useNavigate()
+    function onSubmit(values){
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: values.description,
+            targetDate: values.targetDate,
+            done: false
+        }
+        updateTodoApi(username, id, todo)
+        .then(response => {
+            navigate('/todos')
+        })
+        .catch(error => console.log(error))
+    }
+  ```
+
+## Lecture 259/12:17 - Adding Create New Todo Feature to react Frontend
+
+- Under the list todos we will add a create new todo button
+- ```js
+    // ListTodosComponent.jsx
+    function addNewTodo(){
+        navigate('/todo/-1')
+    }
+    // just below the table div ends add the button div
+    <div className="btn btn-success m-5" onClick={addNewTodo}>Add New Todo</div>
+  ```
+- Here we have hard coded `-1` while navogateing to the todo component. So in the TodoComponent.jsx we have `retrieveTodo` method we will call the rest api `retrieveTodoApi` method only if the `id!=-1`
+- ```js
+    // TodoComponent.jsx
+    function retrieveTodos(){
+        if(id != -1)
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+  ``` 
+- We now need to create a method in the service to call the createTodo Rest api
+- ```js
+    // TodoService.js
+    export const createTodoApi
+    = (username, todo) => apiClient.post(`users/${username}/todos`, todo)
+    // TodoComponent.jsx
+    function onSubmit(values){
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: values.description,
+            targetDate: values.targetDate,
+            done: false
+        }
+        if(id == -1){
+            createTodoApi(username, todo)
+            .then(response => {
+                navigate('/todos')
+            })
+            .catch(error => console.log(error))
+        }else{
+            updateTodoApi(username, id, todo)
+            .then(response => {
+                navigate('/todos')
+            })
+            .catch(error => console.log(error))
+        }       
+    }
+  ```
+- Now everything works fine
+  
+## Lecture260/12:18 - Securing Spring Boot Rest Api with Spring Security
+
+- in the pom.xml add the below code
+- ```java
+    // pom.xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+  ````
+- Upon running the application now we will get 401 error and we won't able to use ani api. All our controller and resources are now protected. As soon we add in spring security in the classpath spring boot would auto configure a filter to protect all the resources that are present in the rest api
+- Once we run the application we can see some as `Using generated security password: 7bc0ed8c-1667-401d-9c84-c94b8ba6624a` in the console and we need to take this password before making call to api rest api that is once we make call to any rest api a login window will come up and in that we need to inpur the username as `user` and the password as `7bc0ed8c-1667-401d-9c84-c94b8ba6624a`. But now this password will be dynamic and upon running everytime this will be different.
+- This will protect every api however this is not good we want to customize which api should be protected and also need to customize what is the user id and password to access our rest api's
+- For this in `application.properties` we need to add the folowing code
+- ```java
+    // application.properties
+    logging.level.org.springframework=info
+    spring.security.user.name=in28minutes
+    spring.security.user.password=dummy
+  ```
+- Now the username and password are permanent untill we make chnages here in `application.properties`. But again in the POST request we will get the same issue of 403. This is because of the CSRF(cross site request forgery). We will learn about this later in Speing Security Module. Right now for our current working we will disbale the csrf. Create a new class `BasicAuthenticationSecurityConfiguration` in the pacakge as `com.in28minutes.rest.webservices.restfulwebservices.basic`
+- We will annotate this class with `@Configuration` imported form `org.springframework.context.annotation.Configuration`. This class is going to be a configuration file and the thing that we want to configure is Spring Security Filter Chain
+- Whenever a request comes to Spring Security it tries to check it against a set of filters and we need to configure those filters right now
+- ```java
+    // BasicAuthenticationSecurityConfiguration.java
+    package com.in28minutes.rest.webservices.restfulwebservices.basic;
+
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+    import org.springframework.security.web.SecurityFilterChain;
+
+    @Configuration
+    public class BasicAuthenticationSecurityConfiguration {
+        
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            return http.build();
+        }
+
+    }
+  ```
+- So whenever a request comes in this the filter chain which will be used by spring security. HttpSecurity is the actual thing that helps us configure web security for specific http request. So we now want to customize the filter chain and to custormize we are using HttpSecurity And we would start with disabling CSRF.
+- The important thing with spring security is if you would start defining a chain you need to define the entire chain. By default spring security it would authenticate all requests. We want to use Basic authentication for all the requests and the best practice when we are disbaling csrf is to not have any session
+- So whenever you have a session it is very very important that you enable csrf and over here we are creating rest api and therefore we don't need to have any session so we would want to create a stateless rest api
+- Upon running the application we wn't get that login screena nad we are bale to call any rest api beacuse we have disbaled the entire spring security. Now we will start configuring all the of the below
+    - Filter chain
+    - authenticated all requets
+    - basic authentication
+    - dosbaling csrf
+    - stateless rest api
+- Lets start with configuring authenticate all requests
+- ```java
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				auth -> auth.anyRequest().authenticated());
+		return http.build();
+	}
+  ```
+- That is all request should be authenticated and now we will enable basic authentication as shown below
+- ```java
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				auth -> auth.anyRequest().authenticated());
+		http.httpBasic(Customizer.withDefaults());
+		return http.build();
+	}
+  ```
+- So what is basic http authentication? So earlier when we applied the spring security and started using the application then before calling any api we would be getting a authentication page where we would be ased to enter the username and password. But now using http basic authentication we would be getting a window pop for username and password instead of a webpage. Now we just need to have stateless rest api and diabsle csrf as shown below
+- ```java
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				auth -> auth.anyRequest().authenticated());
+		http.httpBasic(Customizer.withDefaults());
+		
+		http.sessionManagement(
+				session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		return http.build();
+	}
+  ```
+- Whenever we are disabling csrf it is important that your session is stateless. 
+- So basically what we are doing is getting back to the old state, we enabled authentication for all requests, enabled basic authentication and after that we are configuring statless session and now we can disbale csrf as shown below
+- ```java
+    package com.in28minutes.rest.webservices.restfulwebservices.basic;
+
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.security.config.Customizer;
+    import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+    import org.springframework.security.config.http.SessionCreationPolicy;
+    import org.springframework.security.web.SecurityFilterChain;
+
+    @Configuration
+    public class BasicAuthenticationSecurityConfiguration {
+        
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http.authorizeHttpRequests(
+                    auth -> auth.anyRequest().authenticated());
+            http.httpBasic(Customizer.withDefaults());
+            
+            http.sessionManagement(
+                    session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            
+            http.csrf().disable();
+            
+            return http.build();
+        }
+
+    }
+  ```
+- The thing about http is that it supports chaining so we don't really need separate call as shown above. So the above can be chained one after the other
+- ```java
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		return 
+            http
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf().disable()
+            .build();
+	}
+  ```
+- And now our all http requests will work including the POST request that was not working earlier
+
+## Lecture 261/12:19 - Adding authorization Header in react to spring boot rest api calls
+
+- Now upon calling ani api fron the front wnd we will be getting error as `No Access-Control-Allow-Origin header is present on the requested resource` This is because all of our api's are protected. We need to send a basic authentication header with each of these request calls
+- So we will try to call hello-world api from our front end but we will get the error and to tackle the the error we add the Authorization in the headers of the service.
+- ```js
+    // HelloWorldApiService.js
+    export const retrieveHelloWorldPathVariable
+     = (username) => apiClient.get(`/hello-world/path-variable/${username}`, {
+        headers: {
+            Authorization: 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk='
+        }
+     })
+  ```
+- But now upon adding the above also we will get a new error as ` Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- So what is happening is that when we try to send a request to backend then tehre are tiwo king=d of requests that are originated the first preflight request that is the OPTIONS and the next is the real request. And there fore we need to enable OPTIONS request for everybody
+- ![OptionsRequest](OptionsRequest.PNG)
+- Also we need to focus on the header that we are sending because we just cannot hard code this header everytime we are sending the request. We should get this header when we are logging in. So what we want to do is when a user enters his username and password and logs in We would do a test request to the backend, we will check if the username & password is correct to access the test request and we would create the token at that particular time and we would put the token into our context and thereafter whenever we will make a rest api call we will use the toekn from the context.
+
+## Lecture 263/12:20 - Configuring Spring Security to allow all OPTIONS requests
+
+- So we need to enable the options request for everybody and the second thing to do is creata abasic auth url. And we will start with creating basic auth url, so if somebody wants to check if there token is right, and for this in our `HelloWorldController` we will have a `basicAuthCheck()` method.
+- ```java
+    // HelloWorldController.java
+    @GetMapping(path = "/basicauth")
+	public String basicAuthCheck() {
+		return "Success"; 
+	}
+
+    // BasicAuthenticationSecurityConfiguration.java
+  ```
+- And now we need to permit the OPTIONS requests and for that we need to make changes in the SecurityFilterChain as shown below
+- ```java
+    // BasicAuthenticationSecurityConfiguration.java
+    	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		return 
+            http
+            .authorizeHttpRequests
+                (auth -> 
+                        auth
+                            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // all options allowed
+                            .anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf().disable()
+            .build();
+	}
+  ```
+
+## Lecture 263/12:21 - Calling Basic authentication service when logging into react app
+
+- Now we are able to call our helloworld api and successfully gettinh back response.
+- ![OptionRequestAllowed](OptionRequestAllowed.PNG)
+- But still we don't know how to create the token that we are sending in our object and e want to get this token at the time of login. Also we want to use this token on every rest api call
+- So in the `LoginComponent.jsx` at the time of login in the `handleSubmit` method we are calling `authContext.login` and it is in the `AuthContext.js` and here in the `login` function we have hard coded authentication and now we need to switch away from hard coded authentication
+- ```js
+    // AuthContext.js
+    function login(username, password){
+        if(username==='in28minutes' && password==='dummy'){
+            setAuthenticated(true)
+            setUsername(username)
+            return true
+        }
+        else{
+            setAuthenticated(false)
+            setUsername(null)
+            return false
+        }
+    }
+  ```
+- We want to hit the basic auth url that we had created earkier in our `HelloWorldController`. So we will take the username & password, create a token, send the token as an authorization header and call the `/basicauth` url. And if we get the response back then we will store the token in our context
+- ```js
+    // HelloWorldApiService.js
+    export const executeBasicAuthenticationService
+     = (token) => apiClient.get(`/basicauth`,{
+        headers: {
+            Authorization: token
+        }
+     })
+  ```
+- So above we are calling `/basicauth` with the token which is passed in and then we can check if it is successful or not
+- ```js
+    // AuthContext.js
+        function login(username, password){
+        
+        const baToken = 'Basic ' + window.btoa(username + ':' + password)
+
+        executeBasicAuthenticationService(baToken)
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+        
+        setAuthenticated(false)
+
+        // if(username==='in28minutes' && password==='dummy'){
+        //     setAuthenticated(true)
+        //     setUsername(username)
+        //     return true
+        // }
+        // else{
+        //     setAuthenticated(false)
+        //     setUsername(null)
+        //     return false
+        // }
+    }
+  ```
+- Here we have created the token `basToken` which means basic authentication token and we have the standard format to create the token as `Basic ` followed by the base64 encoded username colon password `window.btoa(username + ':' + password)` and then we have passed it to the method `executeBasicAuthenticationService`. And now upon logging in we will get the following response back as shown below
+- ![TokenAuthenticationSuccessful](TokenAuthenticationSuccessful.PNG)
+
+## Lecture 265/12:22 - Using async and await to invoke Basic Auth API
+
+- So we want to return true if the the method succeeds but one thing to remember is that the above method `executeBasicAuthenticationService` is a promise and methoda does wait for the execution to complete before it would go onto `setAuthenticated(false)` specific step. But what we want is the success of the executiona and only after that moving on to next step and for that purpose we need to make `login` method as async method and await the executeBasicAuthenticationService method.
+- So we will wait for the executeBasicAuthenticationService to execute and return us a response back and if the status is successful only then we will have the further code execution
+- ```js
+    // AuthContext.js
+    async function login(username, password){
+        const baToken = 'Basic ' + window.btoa(username + ':' + password)
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+            if(response.status==200){
+                setAuthenticated(true)
+                setUsername(username)
+                return true
+            }
+            else{
+                setAuthenticated(false)
+                setUsername(null)
+                return false
+            }
+        } catch (error) {
+            setAuthenticated(false)
+            setUsername(null)
+            return false
+        }     
+    }
+  ```
+- But we will have problem because in the `LoginComponent.jsx` we have not set the handleSubmit method as async. So,
+- ```js
+    // LoginComponent.jsx
+    async function handleSubmit(){
+        if(await authContext.login(username, password)){
+            navigate(`/welcome/${username}`)
+            
+        }else{
+            setShowErrorMessage(true)
+        }
+    }
+  ```
+- Now the only tging remaining is to set the token into the context and for that we will create a stae variable for it
+- ```js
+    // AuthContext.js
+    const [token, setToken] = useState(null)
+
+    async function login(username, password){
+        
+        const baToken = 'Basic ' + window.btoa(username + ':' + password)
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+
+            if(response.status==200){
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+                return true
+            }
+            else{
+                logout()
+                return false
+            }
+        } catch (error) {
+            logout()
+            return false
+        }   
+    }
+
+    function logout(){
+        setAuthenticated(false)
+        setUsername(null)
+        setToken(null)
+    }
+  ```
+- So now we just need to send the token out so that the other rest api can use it
+- ```js
+    // AuthContext.js
+    return(
+        <AuthContext.Provider value={{isAuthenticated, login, logout, username, token}}>
+            {children}
+        </AuthContext.Provider>
+    )
+  ```
+- ![TokenInAuthContext](TokenInAuthContext.PNG)
+
+## Lecture 266/12:23 - Setting Basic Auth Token into AuthContext
+
+- ```js
+    // HelloWorldApiService.js
+    export const retrieveHelloWorldPathVariable
+     = (username) => apiClient.get(`/hello-world/path-variable/${username}`, {
+        headers: {
+            Authorization: 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk='
+        }
+     })
+  ```
+- So above we can see that we are hard coding the token but now we want to have the token to be here from AuthContext. And we are calling this method from the `WelcomeCompnent's` callhelloWorldApi method so we just need to pass it on from there
+- ```js
+    // WelcomeCompnent.jsx
+    import { useAuth } from './security/AuthContext';
+
+    export default function WelcomeComponent(){
+        const {username} = useParams()
+        const [message, setMessage] = useState(null)
+        const authContext = useAuth()
+
+        function callHelloWorldRestApi(){
+            retrieveHelloWorldPathVariable('Saeel', authContext.token)
+                .then((response) => successfulResponse(response))
+                .catch( (error) => errorResponse(error))
+                .finally(() => console.log('cleanup'))
+        }
+    }
+
+     // HelloWorldApiService.js
+    export const retrieveHelloWorldPathVariable
+     = (username, token) => apiClient.get(`/hello-world/path-variable/${username}`, {
+        headers: {
+            Authorization: token
+        }
+     })
+  ```
+- So now we are able to send token. But we don't want to send token as a parameter in every api call because there are many api calls to be made and we should not send token as a paramter in every api request.
+  
+## Lecture 267/12:24 - Setting up axios interceptor to add authorization header
+
+- We also have api clients in both `TodoApiService and HelloWorldApiService`. We need to make this part pf the code also generic because otherwise this code will repeat everytime of every new api service
+- ```js
+    // TodoApiService.js HelloWorldApiService.js
+    const apiClient = axios.create({
+            baseURL: 'http://localhost:8080'
+        }
+    )
+  ```
+- In the `api` folder we will create a new file `ApiClient.js` and move the code here as shown below.
+- ```js
+    // ApiClient.js
+    import axios from "axios";
+    export const apiClient = axios.create({
+            baseURL: 'http://localhost:8080'
+        }
+    )
+  ```
+- And we will import `import { apiClient } from "./ApiClient"` in both `TodoApiService and HelloWorldApiService`.
+- Now on every api client we would want to intercept the calls and we want to set the authorization header. Fo this in our `AuthContext.js` when we are setting the token then at that time we can get the `apiClient` and set a common token into the apiclient.
+- So whenever we are making a client call, so as soon as the user logged in we want to say any api call please add this header please add the token into the header and the way we can do that is by configuring `interceptors`
+- So we would want to create interceptors on every request and we want to use the below piece of logic
+- ```js
+    // AuthContext.js
+    async function login(username, password){
+        const baToken = 'Basic ' + window.btoa(username + ':' + password)
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+            if(response.status==200){
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+                // Added the interceptor part here
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('interceptors and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+                return true
+            }
+        }
+  ```
+- So what we are doing is to request configuration we are adding an authorization header. Now we can access all the api calls and the output will come because with every api request a request header will be sent and the reuqest header is the Authorization request header containing token
+- So now all the api calls are getting intercepted and are getting added with the authorization header

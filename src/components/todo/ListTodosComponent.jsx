@@ -16,7 +16,7 @@ export default function ListTodosComponent(){
     const [message, setMessage] = useState(null)
     const authContext = useAuth()
     const username = authContext.username
-    const navigate = useNavigate
+    const navigate = useNavigate()
     useEffect(
         () => {
             refreshTodos()
@@ -43,7 +43,12 @@ export default function ListTodosComponent(){
     }
 
     function updateTodo(id){
+        console.log('in the update todo' + id)
+        navigate(`/todo/${id}`)
+    }
 
+    function addNewTodo(){
+        navigate('/todo/-1')
     }
 
     return(
@@ -88,6 +93,7 @@ export default function ListTodosComponent(){
                     </tbody>
                 </table>
             </div>
+            <div className="btn btn-success m-5" onClick={addNewTodo}>Add New Todo</div>
         </div>
     )
 }
